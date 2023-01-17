@@ -1,0 +1,81 @@
+name: JH Test Helpers
+
+on:
+  pull_request:
+    branches: ["master-jethub"]
+  push:
+    branches: ["master-jethub"]
+
+jobs:
+  jq:
+    runs-on: ubuntu-latest
+    name: jq
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Test base
+        uses: ./helpers/jq
+
+      - name: Test with path
+        uses: ./helpers/jq
+        with:
+          path: test_files
+
+  cas:
+    runs-on: ubuntu-latest
+    name: cas
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Run action
+        uses: ./helpers/cas
+
+      - name: Verify installation
+        run: |
+          which cas
+          [ -f ~/.cas-trusted-signing-pub-key ]
+
+  info:
+    runs-on: ubuntu-latest
+    name: info
+    strategy:
+      fail-fast: False
+      matrix:
+        file:
+          - "build"
+          - "config"
+        type:
+          - "json"
+          - "yaml"
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Test
+        uses: ./helpers/info
+        id: info
+        with:
+          path: "test_files/${{ matrix.file }}_${{ matrix.type }}"
+
+      - name: Validate architectures
+        run: |
+          if [[ '${{ steps.info.outputs.architectures }}' != '["aarch64","armv7","armhf","amd64","i386"]' ]]; then
+            exit 1
+          fi
+
+      - name: Validate image
+        if: matrix.file == 'config'
+        run: |
+          if [[ '${{ steps.info.outputs.image }}' != '"ghcr.io/example/{arch}-example"' ]]; then
+            exit 1
+          fi
+
+      - name: Validate version
+        if: matrix.file == 'config'
+        run: |
+          if [[ '${{ steps.info.outputs.version }}' != '"1.0.0"' ]]; then
+            exit 1
+          fi

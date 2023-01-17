@@ -14,7 +14,7 @@ inputs:
   signer:
     description: CAS Signer ID/Email
     required: false
-    default: "notary@home-assistant.io"
+    default: "vb@jethome.ru"
   asset:
     description: CAS Asset name
     required: false
@@ -23,7 +23,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: home-assistant/actions/helpers/cas@master
+    - uses: jethubjhaos/actions/helpers/cas@master-jethub
       with:
         version: ${{ inputs.version }}
 

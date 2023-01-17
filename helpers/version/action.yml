@@ -36,7 +36,7 @@ runs:
         if [[ ! -z "${{ github.event.inputs.version }}" ]]; then
           version="${{ github.event.inputs.version }}"
 
-        elif [[ "${version}" =~ (master|main) && "${{ inputs.type }}" =~ (supervisor|plugin|generic) ]]; then
+        elif [[ "${version}" =~ (master|main|master-jethub|main-jethub) && "${{ inputs.type }}" =~ (supervisor|plugin|generic) ]]; then
           today="$(date --utc '+%Y-%m-%d')"
           midnight_timestamp="$(date --utc +%s --date=$today)"
           calver_date="$(date --utc --date=$today '+%Y.%m.dev%d')"
