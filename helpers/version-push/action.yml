@@ -31,21 +31,24 @@ runs:
         else
           echo "key-description=${{ inputs.key-description }}" >> "$GITHUB_OUTPUT"
         fi
+        echo "gitdir=$(mktemp -d)" >> "$GITHUB_OUTPUT"
 
     - shell: bash
-      run: git clone --depth 1 https://github.com/jethubjhaos/version.git /tmp/version
+      run: |
+        git clone --depth 1 https://github.com/jethubjhaos/version.git "${{ steps.validate-input.outputs.gitdir }}"
 
     - shell: bash
       run: |
         temp=$(mktemp)
-        jq '.${{ inputs.key }} |= "${{ inputs.version }}"' "/tmp/version/${{ inputs.channel }}.json" > "${temp}"
-        mv "${temp}" "/tmp/version/${{ inputs.channel }}.json"
+        jq '.${{ inputs.key }} |= "${{ inputs.version }}"' "${{ steps.validate-input.outputs.gitdir }}/${{ inputs.channel }}.json" > "${temp}"
+        mv "${temp}" "${{ steps.validate-input.outputs.gitdir }}/${{ inputs.channel }}.json"
+        date > ${{ steps.validate-input.outputs.gitdir }}/timestamp
 
     - shell: bash
       run: |
-        cd /tmp/version
+        cd ${{ steps.validate-input.outputs.gitdir }}
         git commit -am "Bump ${{ steps.validate-input.outputs.key-description }} to ${{ inputs.version }}"
         git push
 
     - shell: bash
-      run: rm -rf /tmp/version
+      run: rm -rf "${{ steps.validate-input.outputs.gitdir }}"
