@@ -47,7 +47,7 @@ runs:
         elif [[ "${version}" == "merge" && "${{ inputs.type }}" =~ (supervisor|plugin|generic) ]]; then
           version="${{ github.sha }}"
 
-        elif [[ "${version}" == "dev" && "${{ inputs.type }}" == "core" ]]; then
+        elif [[ "${version}" =~ (dev|dev-jethub) && "${{ inputs.type }}" == "core" ]]; then
           python3 -m pip install packaging tomli
           python3 -m pip install .
           python3 script/version_bump.py nightly
@@ -64,6 +64,8 @@ runs:
 
         echo "stable=$stable" >> "$GITHUB_OUTPUT"
         echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "stable=$stable"
+        echo "version=$version"
 
     - shell: bash
       run: |
